@@ -6,3 +6,5 @@ Rút gọn link Shopee cho một trang cụ thể trên Shopee
 2. ```func.php``` Line 91 & 98 edit domain 
 
 ![|](https://i.imgur.com/Bc6X9ub.png)
+
+**By Bcat95**
