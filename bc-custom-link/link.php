@@ -1,6 +1,7 @@
 <?php
 header('Access-Control-Allow-Origin: *');
 
+require_once "conn.php";
 require_once "func.php";
 
 if (!(isset($_POST["tp"]))) exit();
@@ -32,6 +33,10 @@ if ($tp == 'link'){
 		}
 
 		if (isset($_POST["url"])) $url = $_POST["url"]; else $url = 0;
+		if ($url) {
+			$url = removeParam($url, 'sp_atk');
+			$url = removeParam($url, 'xptdk');
+		}
 
 		$subIds = [];
 		if (isset($_POST["Sub_id1"]) && $_POST["Sub_id1"] != '') $subIds[] = $_POST["Sub_id1"];
@@ -39,11 +44,12 @@ if ($tp == 'link'){
 		if (isset($_POST["Sub_id3"]) && $_POST["Sub_id3"] != '') $subIds[] = $_POST["Sub_id3"];
 		if (isset($_POST["Sub_id4"]) && $_POST["Sub_id4"] != '') $subIds[] = $_POST["Sub_id4"];
 		if (isset($_POST["Sub_id5"]) && $_POST["Sub_id5"] != '') $subIds[] = $_POST["Sub_id5"];
+		$subIds = [];
 
 		if ($appDemo){
 			$apiAppID = ''; // change this, see at https://affiliate.shopee.vn/open_api 
 			$apiSecret = ''; // change this, see at https://affiliate.shopee.vn/open_api
-			$subIds[] = 'bccustomlink';
+			// $subIds[] = 'bccustomlink';
 		}
 
 		$link = short_link($us_id,$apiAppID,$apiSecret,$url,$subIds);

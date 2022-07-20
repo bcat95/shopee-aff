@@ -1,5 +1,28 @@
 <?php
 
+function removeParam($url, $param) {
+    $url = str_replace('&amp;','&',$url);
+    $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*$/', '', $url);
+    $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*&/', '$1', $url);
+    return $url;
+}
+
+function log_shopee_affiliate_link($us_id='',$apiAppID,$link='',$tracking_link='',$sub_id=''){
+	global $connect;
+	if ($link == '' || $tracking_link == '') return false;
+	if (is_array($sub_id)) $sub_id = json_encode($sub_id);
+	$time_create = time();
+	$ip = get_client_ip();
+	$query="INSERT INTO shopee_affiliate_link(us_id,appid,link,tracking_link,sub_id,time_create,ip) VALUES ('".$us_id."','".$apiAppID."','".addslashes($link)."','".addslashes($tracking_link)."','".addslashes($sub_id)."','".$time_create."','".$ip."')";
+	@mysqli_query($connect,$query);
+}
+
+function get_client_ip() {
+	$ipaddress = '';
+	$ipaddress = $_SERVER['REMOTE_ADDR'];
+	return $ipaddress;
+}
+
 function short_link($us_id='',$apiAppID,$apiSecret,$url,$subIds=[]){
 	$subIds = json_encode($subIds);
 	$query = '
@@ -33,6 +56,7 @@ function short_link($us_id='',$apiAppID,$apiSecret,$url,$subIds=[]){
 				$tracking_link = $data['generateShortLink']['shortLink'];
 			}
 			echo response('success',$tracking_link);
+			// log_shopee_affiliate_link($us_id,$apiAppID,$url,$tracking_link,$subIds);
 			exit();
 		}
 	}
