@@ -1,4 +1,4 @@
-## Tạo Link Rút Gọn
+## ```bc-custom-link``` Tạo Link Rút Gọn
 Rút gọn link Shopee cho một trang cụ thể trên Shopee
 
 ### Install
