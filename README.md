@@ -7,4 +7,25 @@ Rút gọn link Shopee cho một trang cụ thể trên Shopee
 
 ![|](https://i.imgur.com/Bc6X9ub.png)
 
-**By Bcat95**
+SQL Table:
+
+```
+CREATE TABLE `shopee_affiliate_link` (
+  `id` int(11) NOT NULL,
+  `us_id` varchar(128) DEFAULT NULL,
+  `appid` varchar(64) DEFAULT NULL,
+  `link` varchar(512) DEFAULT NULL,
+  `tracking_link` varchar(256) DEFAULT NULL,
+  `sub_id` varchar(512) DEFAULT NULL,
+  `time_create` int(11) DEFAULT NULL,
+  `ip` varchar(128) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `shopee_affiliate_link`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `shopee_affiliate_link`1;
+COMMIT;
+```
+
+**By Bcat95 vui lòng ghi nguồn khi chia sẻ**
