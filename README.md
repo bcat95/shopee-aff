@@ -2,8 +2,7 @@
 Rút gọn link Shopee cho một trang cụ thể trên Shopee
 
 ### Install
-1. ```link.php``` Line 44 & 45 add AppID and API key, see at https://affiliate.shopee.vn/open_api
-2. ```func.php``` Line 91 & 98 edit domain 
+1. ```link.php``` Line 50 & 51 add AppID and API key, see at https://affiliate.shopee.vn/open_api
 
 ![|](https://i.imgur.com/Bc6X9ub.png)
 
@@ -23,9 +22,6 @@ CREATE TABLE `shopee_affiliate_link` (
 
 ALTER TABLE `shopee_affiliate_link`
   ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `shopee_affiliate_link`1;
-COMMIT;
 ```
 
 **By Bcat95 vui lòng ghi nguồn khi chia sẻ**
