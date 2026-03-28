@@ -6,6 +6,51 @@ API lấy thông tin sản phẩm Shopee kèm chi tiết hoa hồng (commission)
 
 ---
 
+## Thông báo bảo trì – Link rút gọn & Product Data API
+
+Hiện tại mình tạm ngưng xử lý các link rút gọn (như s.shopee.vn, shp.ee…) do lưu lượng tăng mạnh, gây ảnh hưởng trực tiếp đến hiệu năng của Product Data API.
+
+## Hai cách sử dụng ổn định nhất
+
+- **item_id (khuyến nghị):**  
+  Gửi trực tiếp mã sản phẩm → nhanh, chính xác, ít lỗi  
+
+- **Link gốc:**  
+- URL đầy đủ: `https://shopee.vn/product/<shop_id>/<item_id>`
+- Dạng path: `-i.<shop_id>.<item_id>`, `/product/<shop_id>/<item_id>`, `/opaanlp/<shop_id>/<item_id>`
+
+---
+
+## Vì sao tạm dừng link rút gọn?
+
+Link rút gọn không chứa thông tin sản phẩm ngay từ đầu. Hệ thống phải đi qua nhiều bước chuyển hướng để tìm ra link gốc:
+
+- Tốn tài nguyên  
+- Tăng độ trễ  
+- Dễ phát sinh lỗi khi traffic cao  
+
+Để đảm bảo API hoạt động ổn định cho số đông, mình tạm thời chặn dạng link này trong giai đoạn bảo trì.
+
+---
+
+## Bạn nên làm gì lúc này?
+
+- Ưu tiên dùng **item_id**  
+- Hoặc dùng **link đầy đủ** copy trực tiếp từ trình duyệt  
+- Tránh dùng link rút gọn từ tin nhắn, bài đăng  
+
+---
+
+## Kế hoạch sắp tới
+
+Sẽ tách riêng một dịch vụ chuyên xử lý chuyển đổi link rút gọn → link gốc, độc lập với API chính.  
+
+Khi hoàn tất, hệ thống sẽ mở lại hỗ trợ link rút gọn với giới hạn phù hợp để đảm bảo hiệu năng.
+
+---
+
+> Nếu đang làm affiliate hoặc build tool, nên chuyển luôn sang item_id để tối ưu tốc độ và tránh lỗi về lâu dài.
+
 ## Cách gọi API
 
 ### Phương thức
