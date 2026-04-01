@@ -5,6 +5,7 @@ API lấy thông tin sản phẩm Shopee kèm chi tiết hoa hồng (commission)
 **Base URL:** `https://data.addlivetag.com/product-data/product-data.php`
 
 ---
+
 ## Thông báo bảo trì – Link rút gọn & Product Data API
 
 Hiện tại mình tạm ngưng xử lý các link rút gọn (như s.shopee.vn, shp.ee…) do lưu lượng tăng mạnh, gây ảnh hưởng trực tiếp đến hiệu năng của Product Data API.
@@ -14,32 +15,33 @@ Hiện tại mình tạm ngưng xử lý các link rút gọn (như s.shopee.vn,
 ## Hai cách sử dụng ổn định nhất
 
 - **item_id (khuyến nghị):**  
-  Gửi trực tiếp mã sản phẩm → nhanh, chính xác, ít lỗi  
+  Gửi trực tiếp mã sản phẩm → nhanh, chính xác, ít lỗi
 
 - **Link gốc:**  
-  Mở sản phẩm trên Shopee → copy link đầy đủ trên thanh địa chỉ  
+  Mở sản phẩm trên Shopee → copy link đầy đủ trên thanh địa chỉ
 
 ## Vì sao tạm dừng link rút gọn?
 
 Link rút gọn không chứa thông tin sản phẩm ngay từ đầu. Hệ thống phải đi qua nhiều bước chuyển hướng để tìm ra link gốc:
 
-- Tốn tài nguyên  
-- Tăng độ trễ  
-- Dễ phát sinh lỗi khi traffic cao  
+- Tốn tài nguyên
+- Tăng độ trễ
+- Dễ phát sinh lỗi khi traffic cao
 
 Để đảm bảo API hoạt động ổn định cho số đông, mình tạm thời hạn chế xử lý link rút gọn trong giai đoạn này.
 
 ## Bạn nên làm gì lúc này?
 
-- Ưu tiên dùng **item_id**  
-- Hoặc dùng **link đầy đủ** copy trực tiếp từ trình duyệt  
-- Tránh dùng link rút gọn từ tin nhắn, bài đăng  
+- Ưu tiên dùng **item_id**
+- Hoặc dùng **link đầy đủ** copy trực tiếp từ trình duyệt
+- Tránh dùng link rút gọn từ tin nhắn, bài đăng
 
 👉 Nếu bắt buộc phải dùng link rút gọn, nên **tự convert sang link gốc trước ở server của bạn**
 
 ## Code mẫu xử lý link rút gọn
 
 ### PHP (cURL – follow redirect)
+
 ```php
 <?php
 function expandShortUrl(string $url, int $timeout = 15, int $connectTimeout = 5): ?string
@@ -70,8 +72,9 @@ function expandShortUrl(string $url, int $timeout = 15, int $connectTimeout = 5)
 $long = expandShortUrl('https://s.shopee.vn/4VU2IjQjPF');
 var_dump($long);
 ```
+
 Bash (curl)
-```curl -Ls -o /dev/null -w '%{url_effective}\n' 'https://s.shopee.vn/4VU2IjQjPF'```
+`curl -Ls -o /dev/null -w '%{url_effective}\n' 'https://s.shopee.vn/4VU2IjQjPF'`
 
 ```Node.js
 import { request } from 'undici';
@@ -103,6 +106,7 @@ console.log(res.url);
 ```
 
 ### Lưu ý
+
 Shopee có thể trả HTML/chặn bot tùy IP, rate limit, cookie
 Việc expand link không ổn định bằng mở trực tiếp trên trình duyệt
 Không nên phụ thuộc hoàn toàn vào link rút gọn nếu build hệ thống lớn
@@ -113,7 +117,6 @@ Sẽ tách riêng một dịch vụ chuyên xử lý chuyển đổi link rút g
 Khi hoàn tất, hệ thống sẽ mở lại hỗ trợ link rút gọn với giới hạn hợp lý để đảm bảo hiệu năng.
 
 ---
-
 
 > Nếu đang làm affiliate hoặc build tool, nên chuyển luôn sang item_id để tối ưu tốc độ và tránh lỗi về lâu dài.
 
@@ -185,30 +188,52 @@ url=https://shopee.vn/product/38003654/1589295236
 
 ```json
 {
-  "status": "success",
-  "productInfo": {
-    "itemId": 1589295236,
-    "productName": "Áo Len Nam Nữ Cổ Lọ Quảng Châu Form Basic Dài Tay Dày Dặn Mềm Mịn Cực Ấm Hàn Quốc Nhiều Màu DYACI AL83",
-    "shopName": "DYACI",
-    "price": 122200,
-    "sales": 990,
-    "imageUrl": "https://cf.shopee.vn/file/vn-11134207-7r98o-lpg62kjcq15n6b",
-    "productLink": "https://shopee.vn/product/38003654/1589295236",
-    "rating": "4.80",
-    "commission": 21996,
-    "sellerComFinal": 16497,
-    "shopeeComFinal": 5499,
-    "isXtra": true,
-    "hasSellerCommission": true,
-    "hasShopeeCommission": true,
-    "isCapped": false,
-    "isLimitCap": false,
-    "cap": 50000,
-    "capRaw": 50000,
-    "capAfterRate": 50000,
-    "lastUpdate": "2026-03-12 07:39:03",
-    "dataSource": "db"
-  }
+    "status": "success",
+    "productInfo": {
+        "itemId": 1589295236,
+        "productName": "Áo Len Nam Nữ Cổ Lọ Quảng Châu Form Basic Dài Tay Dày Dặn Mềm Mịn Cực Ấm Hàn Quốc Nhiều Màu DYACI AL83",
+        "shopName": "DYACI",
+        "price": 122200,
+        "sales": 990,
+        "imageUrl": "https://cf.shopee.vn/file/vn-11134207-7r98o-lpg62kjcq15n6b",
+        "productLink": "https://shopee.vn/product/38003654/1589295236",
+        "rating": "4.80",
+        "commission": 21996,
+        "sellerComFinal": 16497,
+        "shopeeComFinal": 5499,
+        "isXtra": true,
+        "hasSellerCommission": true,
+        "hasShopeeCommission": true,
+        "isCapped": false,
+        "isLimitCap": false,
+        "cap": 50000,
+        "capRaw": 50000,
+        "capAfterRate": 50000,
+        "lastUpdate": "2026-03-12 07:39:03",
+        "dataSource": "db",
+        "priceStats": {
+            "currentPrice": 122200,
+            "minPrice": 99000,
+            "maxPrice": 149000,
+            "avgPrice": 117450,
+            "priceChange7d": 2300,
+            "priceChange30d": -8100,
+            "lastPriceUpdate": "2026-03-12",
+            "lowestPriceDate": "2026-02-25",
+            "highestPriceDate": "2026-03-01"
+        },
+        "latestPriceHistory": {
+            "price": 122200,
+            "originalPrice": 149000,
+            "discountPercent": 18,
+            "currency": "VND",
+            "flashSale": false,
+            "promotionId": null,
+            "stockAvailable": 120,
+            "recordedDate": "2026-03-12",
+            "recordedTime": "2026-03-12 07:39:03"
+        }
+    }
 }
 ```
 
@@ -237,6 +262,36 @@ url=https://shopee.vn/product/38003654/1589295236
 | `capAfterRate`        | number        | Cap sau khi áp dụng user rate.                                                    |
 | `lastUpdate`          | string        | Thời điểm cập nhật dữ liệu (datetime).                                            |
 | `dataSource`          | string        | Nguồn: `"api"` (mới từ Shopee), `"db"` (cache), `"fallback"` (không có chi tiết). |
+| `priceStats`          | object/null   | Thống kê giá từ bảng `price_statistics` (chỉ có khi lấy từ DB).                   |
+| `latestPriceHistory`  | object/null   | Bản ghi giá mới nhất từ bảng `price_history` (chỉ có khi lấy từ DB).              |
+
+### Giải thích `priceStats`
+
+| Trường             | Kiểu        | Mô tả                                                                 |
+| ------------------ | ----------- | --------------------------------------------------------------------- |
+| `currentPrice`     | number/null | Giá hiện tại từ `price_statistics.current_price` (đã quy đổi về VNĐ). |
+| `minPrice`         | number/null | Giá thấp nhất đã ghi nhận (VNĐ).                                      |
+| `maxPrice`         | number/null | Giá cao nhất đã ghi nhận (VNĐ).                                       |
+| `avgPrice`         | number/null | Giá trung bình (VNĐ).                                                 |
+| `priceChange7d`    | number/null | Biến động giá 7 ngày (VNĐ).                                           |
+| `priceChange30d`   | number/null | Biến động giá 30 ngày (VNĐ).                                          |
+| `lastPriceUpdate`  | string/null | Ngày cập nhật thống kê gần nhất.                                      |
+| `lowestPriceDate`  | string/null | Ngày chạm giá thấp nhất.                                              |
+| `highestPriceDate` | string/null | Ngày chạm giá cao nhất.                                               |
+
+### Giải thích `latestPriceHistory`
+
+| Trường            | Kiểu        | Mô tả                                                                                |
+| ----------------- | ----------- | ------------------------------------------------------------------------------------ |
+| `price`           | number/null | Giá bản ghi mới nhất trong `price_history` (VNĐ).                                    |
+| `originalPrice`   | number/null | Giá gốc bản ghi mới nhất (VNĐ).                                                      |
+| `discountPercent` | number/null | Phần trăm giảm giá ở bản ghi mới nhất.                                               |
+| `currency`        | string      | Đơn vị tiền tệ (mặc định `VND` nếu DB không có).                                     |
+| `flashSale`       | boolean     | Có phải flash sale không.                                                            |
+| `promotionId`     | number/null | ID chương trình khuyến mãi (nếu có).                                                 |
+| `stockAvailable`  | number/null | Tồn kho tại thời điểm ghi nhận (nếu có).                                             |
+| `recordedDate`    | string/null | Ngày ghi nhận bản ghi mới nhất.                                                      |
+| `recordedTime`    | string/null | Thời điểm ghi nhận bản ghi mới nhất (sắp xếp theo `recorded_date`, `recorded_time`). |
 
 ### Khi dùng cache hoặc API lỗi
 
@@ -249,8 +304,8 @@ url=https://shopee.vn/product/38003654/1589295236
 
 ```json
 {
-  "status": "error",
-  "message": "item_id or valid Shopee URL is required"
+    "status": "error",
+    "message": "item_id or valid Shopee URL is required"
 }
 ```
 
@@ -258,8 +313,8 @@ url=https://shopee.vn/product/38003654/1589295236
 
 ```json
 {
-  "status": "error",
-  "message": "Rate limit exceeded. Please try again later."
+    "status": "error",
+    "message": "Rate limit exceeded. Please try again later."
 }
 ```
 
@@ -267,9 +322,9 @@ url=https://shopee.vn/product/38003654/1589295236
 
 ```json
 {
-  "status": "error",
-  "message": "Internal server error",
-  "error": "..."
+    "status": "error",
+    "message": "Internal server error",
+    "error": "..."
 }
 ```
 
@@ -288,10 +343,11 @@ url=https://shopee.vn/product/38003654/1589295236
 
 - Dữ liệu sản phẩm (giá, hoa hồng, v.v.) được lưu DB và **cache ~24 giờ** (cấu hình bằng `CACHE_DURATION`).
 - Luồng xử lý:
-  1. Có bản ghi trong DB và chưa hết hạn cache → trả từ **db** (`dataSource: "db"`), không gọi Shopee API.
-  2. Hết hạn hoặc chưa có trong DB → gọi Shopee API, lưu DB, trả từ **api** (`dataSource: "api"`).
-  3. Gọi API Shopee lỗi nhưng có bản ghi cũ → trả cache kèm `warning`.
-  4. Không có DB và API lỗi → trả `productInfo` tối thiểu và `dataSource: "fallback"` với `warning`.
+    1. Có bản ghi trong DB và chưa hết hạn cache → trả từ **db** (`dataSource: "db"`), không gọi Shopee API.
+    2. Hết hạn hoặc chưa có trong DB → gọi Shopee API, lưu DB, trả từ **api** (`dataSource: "api"`).
+    3. Gọi API Shopee lỗi nhưng có bản ghi cũ → trả cache kèm `warning`.
+    4. Không có DB và API lỗi → trả `productInfo` tối thiểu và `dataSource: "fallback"` với `warning`.
+    5. Các object `priceStats` và `latestPriceHistory` hiện được trả đầy đủ khi nguồn là **db**; với nguồn **api/fallback** có thể là `null`.
 
 ---
 
