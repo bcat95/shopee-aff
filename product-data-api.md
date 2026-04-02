@@ -6,41 +6,38 @@ API lấy thông tin sản phẩm Shopee kèm chi tiết hoa hồng (commission)
 
 ---
 
-## Thông báo bảo trì – Link rút gọn & Product Data API
+## Thông báo bảo trì: Link rút gọn & Product Data API
 
-Hiện tại mình tạm ngưng xử lý các link rút gọn (như s.shopee.vn, shp.ee…) do lưu lượng tăng mạnh, gây ảnh hưởng trực tiếp đến hiệu năng của Product Data API.
+Hiện tại mình tạm ngưng xử lý các link rút gọn (như `s.shopee.vn`, `shp.ee`) do lưu lượng tăng mạnh, gây ảnh hưởng trực tiếp đến hiệu năng của Product Data API.
 
-Đã có bổ sung máy chủ xử lý link rút gọn, tuy nhiên để đảm bảo ổn định và tốc độ, vẫn khuyến nghị dùng link gốc hoặc tự xử lý trước phía server của bạn.
+Đã có bổ sung máy chủ xử lý link rút gọn, tuy nhiên để đảm bảo ổn định và tốc độ, vẫn khuyến nghị dùng link gốc hoặc tự xử lý trước ở phía server của bạn.
 
-## Hai cách sử dụng ổn định nhất
+### Hai cách sử dụng ổn định nhất
 
-- **item_id (khuyến nghị):**  
-  Gửi trực tiếp mã sản phẩm → nhanh, chính xác, ít lỗi
+- **`item_id` (khuyến nghị):** gửi trực tiếp mã sản phẩm -> nhanh, chính xác, ít lỗi.
+- **Link gốc:** mở sản phẩm trên Shopee rồi copy link đầy đủ từ thanh địa chỉ.
 
-- **Link gốc:**  
-  Mở sản phẩm trên Shopee → copy link đầy đủ trên thanh địa chỉ
-
-## Vì sao tạm dừng link rút gọn?
+### Vì sao tạm dừng link rút gọn?
 
 Link rút gọn không chứa thông tin sản phẩm ngay từ đầu. Hệ thống phải đi qua nhiều bước chuyển hướng để tìm ra link gốc:
 
-- Tốn tài nguyên
-- Tăng độ trễ
-- Dễ phát sinh lỗi khi traffic cao
+- Tốn tài nguyên.
+- Tăng độ trễ.
+- Dễ phát sinh lỗi khi traffic cao.
 
 Để đảm bảo API hoạt động ổn định cho số đông, mình tạm thời hạn chế xử lý link rút gọn trong giai đoạn này.
 
-## Bạn nên làm gì lúc này?
+### Bạn nên làm gì lúc này?
 
-- Ưu tiên dùng **item_id**
-- Hoặc dùng **link đầy đủ** copy trực tiếp từ trình duyệt
-- Tránh dùng link rút gọn từ tin nhắn, bài đăng
+- Ưu tiên dùng **`item_id`**.
+- Hoặc dùng **link đầy đủ** copy trực tiếp từ trình duyệt.
+- Tránh dùng link rút gọn từ tin nhắn, bài đăng.
 
-👉 Nếu bắt buộc phải dùng link rút gọn, nên **tự convert sang link gốc trước ở server của bạn**
+> Nếu bắt buộc phải dùng link rút gọn, nên **tự convert sang link gốc trước ở server của bạn**.
 
-## Code mẫu xử lý link rút gọn
+### Code mẫu xử lý link rút gọn
 
-### PHP (cURL – follow redirect)
+#### PHP (cURL - follow redirect)
 
 ```php
 <?php
@@ -73,33 +70,40 @@ $long = expandShortUrl('https://s.shopee.vn/4VU2IjQjPF');
 var_dump($long);
 ```
 
-Bash (curl)
-`curl -Ls -o /dev/null -w '%{url_effective}\n' 'https://s.shopee.vn/4VU2IjQjPF'`
+#### Bash (curl)
 
-```Node.js
-import { request } from 'undici';
+```bash
+curl -Ls -o /dev/null -w '%{url_effective}\n' 'https://s.shopee.vn/4VU2IjQjPF'
+```
+
+#### Node.js (undici)
+
+```js
+import { request } from "undici";
 
 async function expandShortUrl(shortUrl) {
-  const { headers } = await request(shortUrl, {
-    method: 'GET',
-    maxRedirections: 15,
-    headers: {
-      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36',
-    },
-  });
+    const { headers } = await request(shortUrl, {
+        method: "GET",
+        maxRedirections: 15,
+        headers: {
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
+        },
+    });
 
-  return headers.location ? new URL(headers.location, shortUrl).href : shortUrl;
+    return headers.location ? new URL(headers.location, shortUrl).href : shortUrl;
 }
 
-expandShortUrl('https://s.shopee.vn/4VU2IjQjPF')
-  .then(console.log)
-  .catch(console.error);
-Node.js (fetch – Node 18+)
-const res = await fetch('https://s.shopee.vn/4VU2IjQjPF', {
-  redirect: 'follow',
-  headers: {
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36',
-  },
+expandShortUrl("https://s.shopee.vn/4VU2IjQjPF").then(console.log).catch(console.error);
+```
+
+#### Node.js (fetch - Node 18+)
+
+```js
+const res = await fetch("https://s.shopee.vn/4VU2IjQjPF", {
+    redirect: "follow",
+    headers: {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
+    },
 });
 
 console.log(res.url);
@@ -107,18 +111,19 @@ console.log(res.url);
 
 ### Lưu ý
 
-Shopee có thể trả HTML/chặn bot tùy IP, rate limit, cookie
-Việc expand link không ổn định bằng mở trực tiếp trên trình duyệt
-Không nên phụ thuộc hoàn toàn vào link rút gọn nếu build hệ thống lớn
-Kế hoạch sắp tới
+- Shopee có thể trả HTML/chặn bot tùy IP, rate limit, cookie.
+- Việc expand link không ổn định bằng mở trực tiếp trên trình duyệt.
+- Không nên phụ thuộc hoàn toàn vào link rút gọn nếu build hệ thống lớn.
 
-Sẽ tách riêng một dịch vụ chuyên xử lý chuyển đổi link rút gọn → link gốc, độc lập với API chính.
+### Kế hoạch sắp tới
+
+Sẽ tách riêng một dịch vụ chuyên xử lý chuyển đổi link rút gọn -> link gốc, độc lập với API chính.
 
 Khi hoàn tất, hệ thống sẽ mở lại hỗ trợ link rút gọn với giới hạn hợp lý để đảm bảo hiệu năng.
 
 ---
 
-> Nếu đang làm affiliate hoặc build tool, nên chuyển luôn sang item_id để tối ưu tốc độ và tránh lỗi về lâu dài.
+> Nếu đang làm affiliate hoặc build tool, nên chuyển luôn sang `item_id` để tối ưu tốc độ và tránh lỗi về lâu dài.
 
 ## Cách gọi API
 
@@ -141,36 +146,36 @@ Khi hoàn tất, hệ thống sẽ mở lại hỗ trợ link rút gọn với g
 - URL đầy đủ: `https://shopee.vn/product/<shop_id>/<item_id>`
 - Dạng path: `-i.<shop_id>.<item_id>`, `/product/<shop_id>/<item_id>`, `/opaanlp/<shop_id>/<item_id>`
 - Query: `?item_id=...` hoặc `?itemId=...`
-- **Short link:** `s.shopee.vn`, `vn.shp.ee` — API sẽ resolve sang URL gốc (timeout 3s) rồi lấy `item_id`.
+- **Short link:** `s.shopee.vn`, `vn.shp.ee` - API sẽ resolve sang URL gốc (timeout 3s) rồi lấy `item_id`.
 
 ---
 
 ## Ví dụ request
 
-### Theo item_id
+### Theo `item_id`
 
-```
+```http
 GET https://data.addlivetag.com/product-data/product-data.php?item_id=1589295236
 ```
 
 ### Theo URL sản phẩm
 
-```
+```http
 GET https://data.addlivetag.com/product-data/product-data.php?url=https://shopee.vn/product/38003654/1589295236
 ```
 
 ### POST (tùy chọn)
 
-```
+```http
 POST https://data.addlivetag.com/product-data/product-data.php
 Content-Type: application/x-www-form-urlencoded
 
 item_id=1589295236
 ```
 
-hoặc
+Hoặc:
 
-```
+```http
 url=https://shopee.vn/product/38003654/1589295236
 ```
 
@@ -343,10 +348,10 @@ url=https://shopee.vn/product/38003654/1589295236
 
 - Dữ liệu sản phẩm (giá, hoa hồng, v.v.) được lưu DB và **cache ~24 giờ** (cấu hình bằng `CACHE_DURATION`).
 - Luồng xử lý:
-    1. Có bản ghi trong DB và chưa hết hạn cache → trả từ **db** (`dataSource: "db"`), không gọi Shopee API.
-    2. Hết hạn hoặc chưa có trong DB → gọi Shopee API, lưu DB, trả từ **api** (`dataSource: "api"`).
-    3. Gọi API Shopee lỗi nhưng có bản ghi cũ → trả cache kèm `warning`.
-    4. Không có DB và API lỗi → trả `productInfo` tối thiểu và `dataSource: "fallback"` với `warning`.
+    1. Có bản ghi trong DB và chưa hết hạn cache -> trả từ **db** (`dataSource: "db"`), không gọi Shopee API.
+    2. Hết hạn hoặc chưa có trong DB -> gọi Shopee API, lưu DB, trả từ **api** (`dataSource: "api"`).
+    3. Gọi API Shopee lỗi nhưng có bản ghi cũ -> trả cache kèm `warning`.
+    4. Không có DB và API lỗi -> trả `productInfo` tối thiểu và `dataSource: "fallback"` với `warning`.
     5. Các object `priceStats` và `latestPriceHistory` hiện được trả đầy đủ khi nguồn là **db**; với nguồn **api/fallback** có thể là `null`.
 
 ---
@@ -361,7 +366,7 @@ url=https://shopee.vn/product/38003654/1589295236
 
 ## OPTIONS (CORS)
 
-- Method: `OPTIONS` được hỗ trợ; server trả HTTP 200 không body để preflight.
+- Method `OPTIONS` được hỗ trợ; server trả HTTP 200 không body để preflight.
 
 ---
 

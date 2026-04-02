@@ -5,8 +5,13 @@ $password    = '';
 $database    = '';
 $time_secs   = 660;
 
-$connect = mysqli_connect($server, $username, $password,$database);
-if (!$connect){  die("Can't conect to server" . mysqli_error());}
+$connect = null;
 
-mysqli_query($connect, "SET NAMES 'utf8'");
+// Database is optional for link generation (used only for logging).
+if ($server !== '' && $username !== '' && $database !== '') {
+    $connect = @mysqli_connect($server, $username, $password, $database);
+    if ($connect) {
+        mysqli_set_charset($connect, 'utf8mb4');
+    }
+}
 ?>
