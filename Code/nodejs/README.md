@@ -43,3 +43,10 @@ node index.js generateShortLink "https://shopee.vn/product/38003654/1589295236"
 node index.js conversionReportV2
 node index.js validationReportV2
 ```
+
+## Kiểm tra nhanh trước khi push
+
+```bash
+npm run lint
+npm run test
+```

@@ -5,6 +5,8 @@
     "description": "Node.js sample for Shopee Affiliate GraphQL API",
     "type": "module",
     "scripts": {
-        "start": "node index.js"
+        "start": "node index.js",
+        "lint": "node --check index.js",
+        "test": "node --test"
     }
 }

@@ -1,0 +1,85 @@
+{
+    "info": {
+        "_postman_id": "7bfbcc20-7676-4658-a4ea-cf70e6a4d11d",
+        "name": "Shopee Product Data API",
+        "description": "Collection test endpoint product-data.php with item_id or url.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "GET - By item_id",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}?item_id={{item_id}}",
+                    "host": ["{{base_url}}"],
+                    "query": [
+                        {
+                            "key": "item_id",
+                            "value": "{{item_id}}"
+                        }
+                    ]
+                },
+                "description": "Get product data by item_id."
+            },
+            "response": []
+        },
+        {
+            "name": "GET - By URL",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}?url={{product_url}}",
+                    "host": ["{{base_url}}"],
+                    "query": [
+                        {
+                            "key": "url",
+                            "value": "{{product_url}}"
+                        }
+                    ]
+                },
+                "description": "Get product data by full Shopee product URL."
+            },
+            "response": []
+        },
+        {
+            "name": "POST - x-www-form-urlencoded (item_id)",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "urlencoded",
+                    "urlencoded": [
+                        {
+                            "key": "item_id",
+                            "value": "{{item_id}}",
+                            "type": "text"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{base_url}}",
+                    "host": ["{{base_url}}"]
+                },
+                "description": "Post item_id as x-www-form-urlencoded."
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "https://data.addlivetag.com/product-data/product-data.php"
+        },
+        {
+            "key": "item_id",
+            "value": "1589295236"
+        },
+        {
+            "key": "product_url",
+            "value": "https://shopee.vn/product/38003654/1589295236"
+        }
+    ]
+}

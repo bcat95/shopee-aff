@@ -1,3 +1,7 @@
 .DS_Store
 
 /shopee-affiliate-api
+.env
+**/.env
+**/node_modules
+/.github

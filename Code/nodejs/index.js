@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const API_URL = "https://open-api.affiliate.shopee.vn/graphql";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function loadEnv(filePath) {
+export function loadEnv(filePath) {
     if (!fs.existsSync(filePath)) {
         throw new Error(".env not found. Copy .env.example to .env first.");
     }
@@ -31,7 +31,7 @@ function loadEnv(filePath) {
     return env;
 }
 
-function buildPayload(apiName, inputUrl) {
+export function buildPayload(apiName, inputUrl) {
     const queries = {
         shopeeOfferV2: `
 {
@@ -90,13 +90,13 @@ mutation {
     return JSON.stringify({ query: queries[apiName] });
 }
 
-function buildAuthorization(appId, secret, payload, timestamp) {
+export function buildAuthorization(appId, secret, payload, timestamp) {
     const signatureBase = `${appId}${timestamp}${payload}${secret}`;
     const signature = crypto.createHash("sha256").update(signatureBase).digest("hex");
     return `SHA256 Credential=${appId}, Timestamp=${timestamp}, Signature=${signature}`;
 }
 
-async function callShopeeApi() {
+export async function callShopeeApi() {
     const env = loadEnv(path.join(__dirname, ".env"));
     const appId = env.SHOPEE_API_APP_ID || "";
     const secret = env.SHOPEE_API_SECRET || "";
@@ -128,21 +128,25 @@ async function callShopeeApi() {
     };
 }
 
-callShopeeApi()
-    .then((data) => {
-        console.log(JSON.stringify(data, null, 2));
-    })
-    .catch((error) => {
-        console.error(
-            JSON.stringify(
-                {
-                    success: false,
-                    error: error.message,
-                    usage: "node index.js [apiName] [originUrl-for-generateShortLink]",
-                },
-                null,
-                2,
-            ),
-        );
-        process.exitCode = 1;
-    });
+const isDirectRun = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isDirectRun) {
+    callShopeeApi()
+        .then((data) => {
+            console.log(JSON.stringify(data, null, 2));
+        })
+        .catch((error) => {
+            console.error(
+                JSON.stringify(
+                    {
+                        success: false,
+                        error: error.message,
+                        usage: "node index.js [apiName] [originUrl-for-generateShortLink]",
+                    },
+                    null,
+                    2,
+                ),
+            );
+            process.exitCode = 1;
+        });
+}
