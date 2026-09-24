@@ -1,8 +1,41 @@
-.DS_Store
-
-/shopee-affiliate-api
+# ─── Bí mật: KHÔNG BAO GIỜ đẩy lên ────────────────────────────────────────────
+# Pattern không chứa dấu "/" sẽ áp dụng cho mọi thư mục con, nên chỉ cần khai một lần.
 .env
-**/.env
-**/node_modules
-/.github
-/TEMP
+.env.*
+# File mẫu (rỗng) thì vẫn đẩy lên để người khác biết cần điền gì:
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# ─── Phụ thuộc cài lại được ───────────────────────────────────────────────────
+node_modules/
+vendor/
+
+# ─── Rác hệ điều hành ─────────────────────────────────────────────────────────
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# ─── Trình soạn thảo / IDE ────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Log & file tạm ───────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-error.log*
+.cache/
+tmp/
+TEMP/
+
+# ─── Thư mục làm việc riêng, không thuộc tài liệu công khai ───────────────────
+/shopee-affiliate-api
+
+# Ghi chú: KHÔNG ignore /.github — để sau này thêm được GitHub Actions
+# (ví dụ: tự kiểm tra link hỏng trong tài liệu) hay template issue.
