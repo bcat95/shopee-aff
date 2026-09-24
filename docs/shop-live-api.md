@@ -5,7 +5,7 @@ khung giờ và thời lượng.
 
 **Endpoint:** `https://data.addlivetag.com/live/shop-live.php`
 
-> **Thay thế API cũ.** Hình dạng trả về giữ nguyên của `api.shopeeanalytics.com/.../get_shop_live.php`:
+> **Thay thế một API cũ cùng chức năng.** Hình dạng trả về giữ nguyên của API đó:
 > map khoá theo `shop_id`, **mọi giá trị là chuỗi**, `live_logs` là chuỗi JSON hoặc `null`.
 > Client cũ chỉ cần đổi URL, không phải sửa code. `stats=1` chỉ **thêm** field mới nên cũng
 > không phá client cũ.

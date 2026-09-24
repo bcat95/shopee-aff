@@ -166,8 +166,7 @@ dữ liệu. Nó gói đủ luật để LLM không tính sai tiền — sai l�
 100 000 và nhân `item_price × qty`.
 
 ````text
-Tôi có JSON từ API báo cáo đơn affiliate ShopeeFood (proxy của
-affiliate.shopee.vn/api/v3/report/list, tenant=2). Hãy tuân thủ CHÍNH XÁC các quy tắc sau,
+Tôi có JSON từ API báo cáo đơn affiliate ShopeeFood. Hãy tuân thủ CHÍNH XÁC các quy tắc sau,
 đây là điều đã kiểm chứng trên dữ liệu thật, không phải phỏng đoán:
 
 CẤU TRÚC

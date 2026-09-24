@@ -26,15 +26,7 @@ Ca thật minh hoạ khác biệt: "Nồi Chiên Không Dầu Lock&Lock EJF357" 
 ## Nguồn dữ liệu
 
 1. **Shopee** — `product-data/product-data.php` (tên, giá, ảnh, hoa hồng).
-2. **TikTok** — RioHub `GET /partner/tiktok/affiliate/products/search` (API partner chính thống, xác thực API key).
-
-Cấu hình trong `.env`:
-
-```env
-RIOHUB_API_KEY='rhk_...'
-RIOHUB_CREATOR_USERNAME='ten_creator_da_ket_noi'
-# RIOHUB_BASE_URL='https://riohub.vn/api/v1'
-```
+2. **TikTok** — API partner chính thống của một đối tác dữ liệu TikTok (xác thực bằng API key phía server).
 
 ---
 
@@ -47,11 +39,11 @@ GET hoặc POST, có CORS.
 | `url` | một trong ba | Link sản phẩm Shopee (kể cả short link `s.shopee.vn`). |
 | `item_id` | một trong ba | `item_id` Shopee. |
 | `name` + `price` | một trong ba | Bỏ qua bước Shopee, tìm thẳng theo tên + giá (tra tay / test). Chế độ này **không cache**. |
-| `creator_username` | không | Mặc định lấy `RIOHUB_CREATOR_USERNAME`. |
+| `creator_username` | không | Bỏ trống thì dùng creator mặc định cấu hình phía server. |
 | `limit` | không | Số kết quả, mặc định 5, tối đa 20. |
 | `minScore` | không | Ngưỡng điểm khớp, mặc định `0.45`. |
 | `priceBand` | không | Band giá ±%, mặc định `0.2` (±20%). `0` = không lọc giá. |
-| `clear_cache` | không | `=1` → bỏ cache DB, luôn gọi RioHub. |
+| `clear_cache` | không | `=1` → bỏ cache DB, luôn gọi nguồn TikTok. |
 | `cacheTtlHours` | không | Thời hạn cache, mặc định `24`. |
 | `debug` | không | `=1` → kèm khối `debug.queries` (từ khoá đã chạy, `filters_applied` dội về từ TikTok). |
 
@@ -138,12 +130,9 @@ TikTok không trả hoa hồng thưởng ở bất kỳ endpoint sản phẩm n�
 
 ## Cache & rate limit
 
-- Cache DB bảng `cross_platform_match`, khoá `(shopee_item_id, creator_username)`, TTL mặc định 24h. Chỉ phần khớp được cache; `sourceProduct` (giá/HH Shopee) luôn lấy mới vì đổi nhanh hơn.
-- Cột `verified` để xác nhận tay: `1` = đúng cùng sản phẩm, `-1` = khớp sai, `0` = chưa ai xác nhận. Dùng lâu dài thành từ điển mapping tin cậy hơn thuật toán.
-- Rate limit theo IP: **30 request/phút** khi phải gọi API (1 lần match = 1 call Shopee + tối đa 3 call RioHub), **300 request/phút** khi trả từ cache. Vượt → HTTP 429.
-- Hạn mức RioHub: 300 req/phút và 100.000 req/ngày mỗi key.
-
-Import bảng: `docs/database/cross_platform_match.sql`.
+- Kết quả khớp được cache theo `(item_id Shopee, creator)`, TTL mặc định 24h. Chỉ phần khớp được cache; `sourceProduct` (giá/HH Shopee) luôn lấy mới vì đổi nhanh hơn.
+- Trường `verified` để xác nhận tay: `1` = đúng cùng sản phẩm, `-1` = khớp sai, `0` = chưa ai xác nhận. Dùng lâu dài thành từ điển mapping tin cậy hơn thuật toán.
+- Rate limit theo IP: **30 request/phút** khi phải gọi API (1 lần match tốn nhiều lượt gọi nguồn), **300 request/phút** khi trả từ cache. Vượt → HTTP 429.
 
 ---
 
@@ -153,9 +142,9 @@ Import bảng: `docs/database/cross_platform_match.sql`.
 | --- | --- | --- |
 | Thiếu `url`/`item_id`/`name` | 400 | `status: error` |
 | Thiếu `creator_username` và `.env` cũng trống | 400 | `status: error` |
-| Thiếu `RIOHUB_API_KEY` | 500 | `status: error` |
+| Nguồn TikTok chưa cấu hình | 500 | `status: error` |
 | Shopee API lỗi / không có sản phẩm | 502 | `status: error` |
-| Creator chưa kết nối trên RioHub | 502 | message kèm `RioHub HTTP 404 (not_found: ...)` |
+| Creator chưa kết nối trên nguồn TikTok | 502 | message kèm `nguồn TikTok HTTP 404 (not_found: ...)` |
 | Vượt rate limit | 429 | `status: error` |
 
-Lưu ý mã lỗi RioHub cần phân biệt: `424 creator_token_invalid` là **token TikTok của creator hỏng** (creator phải kết nối lại), không phải lỗi API key — đừng retry, đừng xoay key.
+Lưu ý mã lỗi nguồn TikTok cần phân biệt: `424 creator_token_invalid` là **token TikTok của creator hỏng** (creator phải kết nối lại), không phải lỗi API key — đừng retry, đừng xoay key.

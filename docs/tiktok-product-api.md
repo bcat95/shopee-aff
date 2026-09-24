@@ -5,7 +5,7 @@ API lấy thông tin sản phẩm TikTok Shop (affiliate) kèm hoa hồng, **lư
 ## Tuyên bố pháp lý & phạm vi sử dụng
 
 - Chỉ dành cho **học tập, nghiên cứu kỹ thuật, vận hành nội bộ phi thương mại**.
-- Nguồn là **API không chính thống** (gọi bằng cookie `sessionid` của creator TikTok), dữ liệu có thể sai số / chậm cập nhật / thay đổi bất kỳ lúc nào.
+- Nguồn là **API không chính thống** của TikTok Shop, dữ liệu có thể sai số / chậm cập nhật / thay đổi bất kỳ lúc nào.
 - Người dùng tự kiểm chứng và tự chịu trách nhiệm.
 
 **Base URL:** `https://data.addlivetag.com/tiktok/product.php`
@@ -17,20 +17,9 @@ API lấy thông tin sản phẩm TikTok Shop (affiliate) kèm hoa hồng, **lư
 
 ## Nguồn dữ liệu
 
-Gọi API `streamer_desktop/product_link/check` của TikTok:
-
-```
-POST https://shop.tiktok.com/api/v1/streamer_desktop/product_link/check
-Cookie: sessionid=<...>   (ttwid tuỳ chọn)
-Body:   {"origin":2,"urls":["<url>", ...]}
-```
-
-- **Chỉ cần `sessionid`** cho việc check (không cần ttwid, không cần chữ ký JS).
-- Cấu hình cookie trong `.env` → biến `TIKTOK_ACCOUNTS` (JSON 1 dòng, hỗ trợ nhiều account, chọn ngẫu nhiên theo trọng số `rate`). Xem `tiktok/tiktok_api_config.php`.
-
-```env
-TIKTOK_ACCOUNTS='[{"sessionid":"...","ttwid":"...","store_region":"vn","owner":"acc1","note":"acc1","rate":50},{"sessionid":"...","rate":50}]'
-```
+Dữ liệu lấy qua **nguồn không chính thống** của TikTok Shop, do server đứng ra gọi bằng cấu
+hình riêng — bên gọi API không cần cung cấp thông tin đăng nhập nào. Nguồn có thể đổi hoặc
+ngừng hoạt động bất kỳ lúc nào, nên đừng xây nghiệp vụ quan trọng chỉ dựa vào nó.
 
 ---
 
@@ -45,8 +34,6 @@ TIKTOK_ACCOUNTS='[{"sessionid":"...","ttwid":"...","store_region":"vn","owner":"
 | `product_id`    | một trong ba     | Chỉ **tra cache DB** (check cần URL nên product_id không gọi API).   |
 | `clear_cache`   | không            | `=1` → bỏ qua cache DB, luôn gọi TikTok API.                          |
 | `cacheTtlHours` | không            | Thời hạn cache, mặc định `24`. `0` = luôn coi cache là hợp lệ.        |
-| `sessionid`     | không            | Override cookie để test nhanh (thay account trong .env).             |
-| `ttwid`         | không            | Override ttwid để test.                                               |
 | `debugDb`       | không            | `=1` → kèm khối `db_debug`.                                           |
 
 ### Ví dụ
@@ -139,13 +126,7 @@ Tra cache khi input là URL: ưu tiên trích `product_id` từ URL (`/view/prod
 
 ## Lưu data (DB)
 
-Bảng trong `shopee_data` (import `docs/database/tiktok_product.sql`):
-
-- **`tiktok_product`** — thông tin sản phẩm mới nhất (PK `product_id`).
-- **`tiktok_price_history`** — lịch sử giá, 1 dòng/ngày (`UNIQUE product_id + recorded_date`).
-- **`tiktok_commission_history`** — lịch sử hoa hồng, 1 dòng/ngày.
-
----
+Dữ liệu được lưu lại phía server để phục vụ cache và lịch sử giá/hoa hồng.
 
 ## Rate limit
 
@@ -164,7 +145,7 @@ Theo IP (Cloudflare / X-Forwarded-For / REMOTE_ADDR), lưu file trong `rate_limi
 | Thiếu `url`/`urls`/`product_id`    | 400  | `{"status":"error","message":"url (hoặc urls / product_id) is required..."}` |
 | DB lỗi (khi chỉ tra product_id)    | 500  | `{"status":"error","message":"Database connection failed"}`         |
 | Rate limit                         | 429  | `{"status":"error","message":"Rate limit exceeded..."}`             |
-| `sessionid` hết hạn / thiếu cookie | 200  | `status:"success"`, `warning` mô tả lỗi API, sản phẩm vào `notFoundUrls` |
+| Phiên nguồn hết hạn | 200  | `status:"success"`, `warning` mô tả lỗi API, sản phẩm vào `notFoundUrls` |
 
 ---
 

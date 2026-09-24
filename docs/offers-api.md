@@ -35,10 +35,11 @@ shop/brand có hoa hồng, chiến dịch của sàn, hồ sơ shop, và lịch 
 - **`status`:** `"success"` hoặc `"error"`.
 - **`dataSource`:** `"api"` (vừa gọi nguồn) hoặc `"db"` (trả từ cache).
 - **Fallback:** nguồn lỗi mà DB còn bản lưu → vẫn trả bản lưu thay vì trả rỗng.
-- **`shopeeAccountNote`:** ký hiệu tài khoản Shopee đã phục vụ request (`bc`, `mp`…).
-  Hữu ích khi đối chiếu vì mỗi account ở một tier hoa hồng khác nhau.
-- **Không trả `offer_link`.** Đó là link affiliate dựng bằng tài khoản của hệ thống — trả ra
-  ngoài thì hoa hồng chạy về chủ hệ thống chứ không về bạn. Dùng `link`/`originalLink` rồi tự
+- **`shopeeAccountNote`:** mã nội bộ cho biết cấu hình nguồn nào đã phục vụ request. Tier
+  hoa hồng có thể khác nhau giữa các cấu hình, nên khi thấy số liệu lệch giữa hai lần gọi
+  thì so trường này trước. Giá trị chỉ để đối chiếu, đừng gán ý nghĩa nghiệp vụ cho nó.
+- **Không trả `offer_link`.** Đó là link affiliate dựng bằng tài khoản của bên vận hành API —
+  trả ra ngoài thì hoa hồng không chạy về bạn. Dùng `link`/`originalLink` rồi tự
   dựng link affiliate bằng affiliate_id của mình.
 
 ### Rate limit
@@ -219,8 +220,7 @@ GET /offers/shop-info.php?shopIds=123,456,789        # tối đa 20 shop/lượt
 **không có** số follower hay số đánh giá. Hệ quả: shop mở 2 tuần, 0 follower, đúng 1 đánh giá
 5 sao trông y hệt shop 5.000 follower rating 4,79 — không chấm chất lượng được.
 
-- Nguồn: `get_shop_base` — endpoint public của Shopee, không dính anti-bot `90309999` như
-  `get_shop_info`/`search_items` (đo 07/08/2026).
+- Nguồn: một endpoint công khai của Shopee, ổn định hơn các đường lấy hồ sơ shop khác.
 - **Cache 7 ngày**: hồ sơ shop đổi rất chậm, TTL ngắn chỉ tốn request mà không đổi kết quả.
 - Trần: **20 shop/request**, timeout 12 giây/shop.
 

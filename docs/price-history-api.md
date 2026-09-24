@@ -19,15 +19,15 @@ fetch.
 
 ## Dữ liệu đến từ đâu
 
-| Nguồn | Vai trò |
-| ----- | ------- |
-| `price_history` | Giá theo ngày |
-| `commission_history` | Hoa hồng theo ngày |
-| `price_statistics` | Thống kê toàn thời gian đã tính sẵn (khối `allTime`) |
-| `products` | Tên, ảnh, link sản phẩm (khối `product`) |
+| Khối trong response | Nội dung |
+| ------------------- | -------- |
+| `price` | Giá theo ngày |
+| `commission` | Hoa hồng theo ngày |
+| `allTime` | Thống kê toàn thời gian đã tính sẵn |
+| `product` | Tên, ảnh, link sản phẩm |
 
-**Độ phân giải là NGÀY, không phải giờ.** Cả hai bảng lịch sử đều `UNIQUE (product_id,
-recorded_date)` — mỗi sản phẩm một dòng mỗi ngày. Giá đổi nhiều lần trong cùng một ngày thì
+**Độ phân giải là NGÀY, không phải giờ.** Mỗi sản phẩm chỉ có một bản ghi mỗi ngày cho mỗi
+loại dữ liệu. Giá đổi nhiều lần trong cùng một ngày thì
 chỉ còn lại lần ghi cuối của ngày đó. Cần giá hiện tại thì dùng
 [Product Data Batch API](product-data-batch.md).
 
@@ -261,7 +261,7 @@ Khối `recorded` chỉ xuất hiện khi bạn khai `base_rate` — nó giữ s
 chiếu, còn các trường ở cấp trên đã được tính lại theo tier bạn khai.
 
 `sellerComFinal` / `shopeeComFinal` / `commission` là **số tiền VNĐ** tại thời điểm ghi nhận,
-tính theo tier của tài khoản proxy — không áp `base_rate`/`cap` của bên gọi như Product Data
+tính theo tier của cấu hình nguồn phía server — không áp `base_rate`/`cap` của bên gọi như Product Data
 API. Muốn quy đổi sang tier của mình thì lấy `totalRatePercent` × `priceSnapshot`.
 `priceSnapshot` là giá sản phẩm lúc ghi nhận, đơn vị VNĐ.
 

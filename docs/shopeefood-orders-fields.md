@@ -1,7 +1,7 @@
 # ShopeeFood — Báo cáo đơn affiliate (`/shopeefood/orders.php`)
 
-Mô tả cấu trúc response thật của `shopeefood/orders.php` — proxy của
-`GET https://affiliate.shopee.vn/api/v3/report/list` với `tenant=2` (ShopeeFood).
+Mô tả cấu trúc response thật của `shopeefood/orders.php` — proxy tới báo cáo đơn affiliate
+ShopeeFood, gọi bằng cookie tài khoản của chính bạn.
 
 Data mẫu:
 
@@ -246,14 +246,13 @@ Kiểm tra `strpos($utm, '-AppS-') !== false || strpos($utm, '-AccS-') !== false
 chỉ lấy đoạn đầu làm mã tham chiếu và **bỏ qua** các đoạn sau. Còn lại là dạng A, tách 5 phần
 như bình thường.
 
-Tính tới 25/08/2026, DB production chỉ chứa dạng A (262 đơn `tenant=2`, 0 đơn dạng B) — vì hệ
-thống mới chỉ đồng bộ đơn từ link tự dựng. Dạng B xuất hiện khi lấy báo cáo của tài khoản có
-lưu lượng đến từ chia sẻ trong app.
+Dạng A là trường hợp thường gặp với link tự dựng. Dạng B xuất hiện khi tài khoản có lưu
+lượng đến từ chia sẻ trong app, nên code phải xử lý được cả hai dù hiện chưa gặp dạng B.
 - Tiền: giữ nguyên số nguyên ×1e5 trong DB (`BIGINT`), chỉ chia khi hiển thị. Chia sớm
   bằng float là mất số lẻ kiểu `3197368421`.
 - `shop_id`, `item_id`, `affiliate_id`, `checkout_id` → `BIGINT` / `VARCHAR`, đừng `INT`.
-- Chuỗi tiếng Việt → `utf8mb4_unicode_ci`. DB prod bật strict mode: lỗi *"Data truncated"*
-  nghĩa là **mất dữ liệu thật**, không phải cảnh báo suông.
+- Chuỗi tiếng Việt → `utf8mb4_unicode_ci`. Nếu DB của bạn bật strict mode, lỗi
+  *"Data truncated"* nghĩa là **mất dữ liệu thật**, không phải cảnh báo suông.
 - Đơn `conversion_status=1` sẽ đổi sang `2` hoặc `3` ở lần đồng bộ sau → upsert theo
   `checkout_id`, đừng insert-only.
 - API chỉ được **thêm** field, không đổi tên key sẵn có (nhiều tool ngoài đang gọi vào).

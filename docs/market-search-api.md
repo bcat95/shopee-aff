@@ -6,8 +6,8 @@ dương xanh, top shop, và danh sách sản phẩm.
 
 **Endpoint:** `https://data.addlivetag.com/search/market.php`
 
-> **Không tiêu quota Shopee.** Endpoint chạy hoàn toàn trên dữ liệu đã crawl (Manticore +
-> MariaDB), nên mở rộng được mà không chạm trần quota như các endpoint có gọi nguồn.
+> **Không tiêu quota Shopee.** Endpoint chạy hoàn toàn trên dữ liệu đã thu thập sẵn, nên
+> chịu được tần suất cao hơn các endpoint phải gọi nguồn.
 
 > Phạm vi sử dụng: học tập, nghiên cứu kỹ thuật, vận hành nội bộ phi thương mại.
 
@@ -21,7 +21,7 @@ Ba điều dưới đây **phải hiển thị trên UI** nếu bạn đưa số
    trong phần dữ liệu mình có", không phải thị phần thật.
 2. **`market.totalSold` là ước tính DƯỚI thực tế** — nguồn không trả lượt bán cho mọi sản phẩm.
 3. **`market` là số LUỸ KẾ** (từ trước tới nay). Số theo kỳ nằm riêng ở `last30Days` kèm
-   `coverage` — chỉ khoảng 10–32% sản phẩm có đủ lịch sử để tính. **Đừng cộng hai khối này.**
+   `coverage` — chỉ một phần sản phẩm có đủ lịch sử để tính. **Đừng cộng hai khối này.**
 
 Response tự kèm `scopeNote` nhắc lại điều 1 và 2.
 
@@ -42,15 +42,15 @@ GET, POST form, hoặc POST JSON. Thứ tự ưu tiên tham số: GET > POST > b
 | `sort` | | `revenue_all` | Xem bảng dưới. |
 | `limit` | | `100` | Số sản phẩm trả về, tối đa **200**. |
 | `offset` | | `0` | Phân trang. |
-| `no_cache` | | `0` | `1` = bỏ qua cache Redis (TTL **6 giờ**). |
+| `no_cache` | | `0` | `1` = bỏ qua cache phía server (TTL **6 giờ**). |
 
 ### `sort` hợp lệ
 
 `revenue_all` (mặc định, doanh thu luỹ kế — phủ 100% sản phẩm) · `revenue_30d` · `sales` ·
 `sold_30d` · `price` · `comm_rate` · `growth` · `rating_star`
 
-> Mặc định **loại** quà tặng khỏi số tổng vì chúng thổi phồng quy mô thị trường — đo được:
-> 15,3% doanh thu của từ khoá "nước tẩy trang" đến từ 0,7% số sản phẩm là quà tặng.
+> Mặc định **loại** quà tặng khỏi số tổng vì chúng thổi phồng quy mô thị trường: một nhúm
+> sản phẩm quà tặng có thể chiếm phần doanh thu lớn bất thường của cả từ khoá.
 
 ### Ví dụ
 
@@ -71,30 +71,30 @@ curl -X POST https://data.addlivetag.com/search/market.php \
 ```json
 {
     "query": { "raw": "ao len", "normalized": "ao len", "matchMode": "phrase", "relaxed": false, "accentMode": "loose" },
-    "giftsExcluded": { "applied": true, "products": 3, "revenue": 144760000, "note": "…" },
+    "giftsExcluded": { "applied": true, "products": 3, "revenue": 12345678, "note": "…" },
     "market": {
-        "totalProducts": 38979,
-        "totalShops": 3693,
-        "totalSold": 137767,
-        "totalRevenue": 29859773535,
+        "totalProducts": 12345,
+        "totalShops": 678,
+        "totalSold": 45678,
+        "totalRevenue": 9876543210,
         "avgPrice": 279482,
         "minPrice": 1000,
         "maxPrice": 10750000,
         "avgCommissionRate": 0.1159,
         "maxCommissionRate": 0.28,
-        "productsWithSales": 5099,
+        "productsWithSales": 1500,
         "sellThroughRate": 0.1308,
         "hhi": 0.0335,
         "blueOceanScore": 32.1
     },
     "last30Days": {
-        "totalSold": 14092,
-        "totalRevenue": 4321790207,
-        "trackedProducts": 12543,
+        "totalSold": 5678,
+        "totalRevenue": 1234567890,
+        "trackedProducts": 4000,
         "coverage": 0.3218,
         "note": "Only counts products with 8+ days of history…"
     },
-    "topShops": [ { "shopId": 1410303826, "revenue": 3543543871, "products": 94 } ],
+    "topShops": [ { "shopId": 1234567890, "revenue": 1111111111, "products": 40 } ],
     "products": [
         {
             "itemId": 47564633105,
@@ -138,13 +138,13 @@ curl -X POST https://data.addlivetag.com/search/market.php \
 | `avgCommissionRate` / `maxCommissionRate` | Hoa hồng trung bình / cao nhất (thập phân). |
 | `productsWithSales` | Số sản phẩm thực sự có lượt bán. |
 | `sellThroughRate` | `productsWithSales / totalProducts` — tỷ lệ sản phẩm bán được. |
-| `hhi` | Chỉ số tập trung Herfindahl–Hirschman theo doanh thu shop. Càng nhỏ càng phân mảnh (nhiều shop nhỏ), càng lớn càng bị vài shop thống trị. **Chỉ tính trên 10 shop doanh thu cao nhất**, nên là ước lượng *dưới* của mức tập trung thật. |
+| `hhi` | Chỉ số tập trung Herfindahl–Hirschman theo doanh thu shop. Càng nhỏ càng phân mảnh (nhiều shop nhỏ), càng lớn càng bị vài shop thống trị. **Chỉ tính trên nhóm shop doanh thu cao nhất**, nên là ước lượng *dưới* của mức tập trung thật. |
 | `blueOceanScore` | Điểm "đại dương xanh" 0–100: cao = nhu cầu có mà cạnh tranh còn thưa. Tổng hợp từ doanh thu/sản phẩm, `1 - hhi`, tỷ lệ sản phẩm bán được và số lượng sản phẩm. ⚠️ **Ngưỡng chuẩn hoá hiện là đặt tạm, chưa hiệu chỉnh bằng dữ liệu thật** — dùng để *so sánh tương đối giữa các từ khoá*, đừng coi là con số tuyệt đối. |
 
 ### Khối `last30Days` (theo kỳ)
 
 Chỉ tính trên sản phẩm có **từ 8 ngày lịch sử trở lên**. `coverage` cho biết tỷ lệ sản phẩm
-đủ điều kiện (ví dụ `0.3218` = 32,18%). Số ở đây **không so sánh trực tiếp** được với khối
+đủ điều kiện trong tập khớp. Số ở đây **không so sánh trực tiếp** được với khối
 `market`.
 
 ### Mỗi sản phẩm trong `products[]`
@@ -174,7 +174,7 @@ Chỉ tính trên sản phẩm có **từ 8 ngày lịch sử trở lên**. `cov
 | `missing_query` | 400 | Không truyền `q`. |
 | `query_too_long` | 400 | Từ khoá > 200 ký tự. |
 | `empty_query` | 400 | Từ khoá sau chuẩn hoá không còn gì để tìm. |
-| `search_unavailable` | 503 | Máy tìm kiếm (Manticore) tạm thời không phản hồi. |
+| `search_unavailable` | 503 | Máy tìm kiếm tạm thời không phản hồi. |
 
 Lưu ý: endpoint này trả thông điệp lỗi ở khoá **`error`** kèm `reason`, hơi khác các endpoint
 còn lại (dùng `message`).

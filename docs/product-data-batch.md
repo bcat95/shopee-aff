@@ -1,7 +1,7 @@
 # Sàn Cam Product Data API — Batch (nhiều sản phẩm / 1 request)
 
 Lấy thông tin + hoa hồng của **nhiều sản phẩm Shopee** trong một lần gọi. Dành cho tool
-cần làm tươi vài nghìn sản phẩm mỗi chu kỳ (noti giá, quét kho sản phẩm affiliate…).
+cần làm tươi số lượng lớn sản phẩm mỗi chu kỳ (noti giá, quét kho sản phẩm affiliate…).
 
 **Base URL:** `https://data.addlivetag.com/product-data/product-data-batch.php`
 
@@ -22,8 +22,8 @@ trong `productInfo`; ở đây chỉ nói phần khác biệt.
 
 ## Vì sao có endpoint này
 
-Gọi endpoint đơn 100 lần = 100 request HTTP và **600 truy vấn MySQL** (mỗi sản phẩm 6
-truy vấn). Batch gom lại còn 1 request HTTP và ~6 truy vấn cho cả lô.
+Gọi endpoint đơn 100 lần tốn 100 request HTTP và 100 lượt tra dữ liệu riêng lẻ. Batch gom
+lại còn **1 request HTTP và một lượt tra cho cả lô** — rẻ hơn nhiều bậc ở cả hai phía.
 
 Nguyên tắc: **cache trước, nguồn sau.**
 
@@ -60,7 +60,7 @@ Nguyên tắc: **cache trước, nguồn sau.**
 đếm `requested` trong response để biết.
 
 Link rút gọn (`s.shopee.vn`, `shp.ee`) **không hỗ trợ** ở endpoint batch: mỗi link là một
-lượt resolve qua proxy, gửi cả trăm link là tự làm sập mình. Tự convert sang link gốc, hoặc
+lượt bung link riêng ở phía server, gửi cả trăm link là tự làm chậm mình. Tự convert sang link gốc, hoặc
 tốt hơn là gửi thẳng `item_id`.
 
 ### Ví dụ — POST JSON
@@ -204,7 +204,7 @@ bình thường, phần còn lại đánh dấu `stale`/`skipped`. Vượt quota
 
 ### Trần thật nằm ở phía Shopee
 
-Quota của **tài khoản Shopee** (không phải của endpoint này) mới là nút thắt: gọi dồn dập sẽ
+Hạn mức **phía nguồn** (không phải của endpoint này) mới là nút thắt: gọi dồn dập sẽ
 nhận lỗi `10030 Rate limit exceeded`, và khi đã chạm trần thì nghỉ hơn một phút vẫn chưa hồi.
 
 Endpoint tự bảo vệ:

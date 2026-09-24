@@ -20,7 +20,7 @@ API lấy thông tin sản phẩm Sàn Cam kèm chi tiết hoa hồng (commissio
 > **Cần nhiều sản phẩm một lúc?** Dùng endpoint batch
 > [`product-data-batch.php`](docs/product-data-batch.md) — gửi tới 100 item_id trong 1 request,
 > ưu tiên trả từ cache, chỉ sản phẩm chưa có mới tính vào quota API. Đừng gọi endpoint đơn
-> trong vòng lặp vài nghìn lần.
+> trong vòng lặp hàng loạt.
 
 ---
 
@@ -224,7 +224,7 @@ Cách API dựng link:
 
 ### Hoa hồng theo tier của account bên gọi
 
-Endpoint chạy bằng account proxy phía server, nhưng mỗi tool gọi vào có thể ở tier Shopee khác nhau
+Endpoint chạy bằng cấu hình nguồn phía server, nhưng mỗi tool gọi vào có thể ở tier Shopee khác nhau
 (HH Sàn 3,5% / 5% / 8%; cap 40k hoặc 20k). Dùng `base_rate` và `cap` để tính đúng theo account của bạn:
 
 ```
@@ -234,7 +234,7 @@ Endpoint chạy bằng account proxy phía server, nhưng mỗi tool gọi vào 
 Thứ tự ưu tiên khi xác định **% HH Sàn**:
 
 1. `base_rate` truyền vào request
-2. Rate account proxy nhận từ Shopee API
+2. Rate mà server nhận được từ Shopee API
 3. Mức cơ bản cấu hình ở server (`SHOPEE_BASE_COMMISSION_RATE`, mặc định 3,5%) — chỉ dùng khi API thiếu field / lỗi
 
 **Ngoại lệ quan trọng:** nếu Shopee trả HH Sàn = **0** (ngành hàng không có HH Sàn) thì luôn giữ 0,
@@ -387,22 +387,24 @@ url=https://shopee.vn/product/38003654/1589295236
 
 ### Lưu ý về `catName` / `catPath` — QUAN TRỌNG
 
-Tên danh mục **không phải Shopee cung cấp**. Affiliate API chỉ trả id, và hệ id đó (`100011`) khác hệ id của web shopee.vn (`11035567`) nên cây danh mục công khai không map được. Tên ở đây được **suy ra từ dữ liệu crawler của chính hệ thống** bằng cách bỏ phiếu đa số, rồi lưu ở bảng `shopee_categories`.
+Tên danh mục **không phải Shopee cung cấp**. Affiliate API chỉ trả id, và hệ id đó
+(`100011`) khác hệ id của web shopee.vn (`11035567`) nên cây danh mục công khai không map
+được. Tên ở đây là **suy luận thống kê**, không phải dữ liệu chính thống.
 
 Hệ quả khi dùng:
 
-- **Chỉ phủ khoảng 58%** số danh mục đang gặp (897/1540 tại thời điểm 07/09/2026). Cấp 1 phủ 70%, cấp 3 phủ 56%.
-- Chỗ nào không đủ tin cậy (đồng thuận < 90%) thì **bỏ hẳn khỏi response**, không trả `null` và không đoán bừa. Nên `catName` / `catPath` có thể không xuất hiện — code bên gọi phải kiểm tra key tồn tại trước khi đọc.
-- **`catPath` không khớp vị trí với `catIds`.** Cấp nào chưa biết tên thì bị bỏ qua, nên `catPath` có thể ngắn hơn. Ví dụ `catIds: [100011, 100049]` mà chỉ biết tên cấp 1 thì `catPath: ["Thời Trang Nam"]`. Muốn biết chắc sản phẩm thuộc danh mục nào thì dùng `catIds`, đừng suy từ độ dài `catPath`.
-- **27% số danh mục bị trùng tên với danh mục khác cùng cấp** — do cây danh mục nội bộ thô hơn cây Shopee thật. Tên vẫn đúng ngành hàng đại thể nhưng hai `catId` khác nhau có thể ra cùng một `catName`. **Đừng dùng `catName` làm khoá**; khoá là `catId`.
-- Cần chính xác tuyệt đối thì phải dùng `catId`, hoặc bổ sung tên từ nguồn chính thống (tài khoản Shopee Open Platform) rồi ghi vào `shopee_categories` với `source = 'manual'` — bản điền tay không bao giờ bị script ghi đè.
-
-Chạy lại script khi dữ liệu nhiều lên để phủ thêm:
-
-```bash
-/www/server/php/83/bin/php product-data/tools/bootstrap_shopee_categories.php          # xem trước
-/www/server/php/83/bin/php product-data/tools/bootstrap_shopee_categories.php --apply
-```
+- **Độ phủ chưa đầy đủ** và sẽ tăng dần theo thời gian. Chỗ nào không đủ tin cậy thì **bỏ
+  hẳn khỏi response**, không trả `null` và không đoán bừa. Nên `catName` / `catPath` có thể
+  không xuất hiện — code bên gọi phải kiểm tra key tồn tại trước khi đọc.
+- **`catPath` không khớp vị trí với `catIds`.** Cấp nào chưa biết tên thì bị bỏ qua, nên
+  `catPath` có thể ngắn hơn. Ví dụ `catIds: [100011, 100049]` mà chỉ biết tên cấp 1 thì
+  `catPath: ["Thời Trang Nam"]`. Muốn biết chắc sản phẩm thuộc danh mục nào thì dùng
+  `catIds`, đừng suy từ độ dài `catPath`.
+- **Tên có thể trùng nhau giữa hai danh mục khác nhau cùng cấp.** Tên vẫn đúng ngành hàng
+  đại thể nhưng hai `catId` khác nhau có thể ra cùng một `catName`. **Đừng dùng `catName`
+  làm khoá**; khoá là `catId`.
+- Cần chính xác tuyệt đối thì dùng `catId`, hoặc tự map sang cây danh mục của tài khoản
+  Shopee Open Platform của bạn.
 
 ### Các khối ở cấp cao nhất
 
@@ -467,9 +469,9 @@ Giới hạn theo **IP** (qua Cloudflare / X-Forwarded-For / REMOTE_ADDR), đế
 - Vượt giới hạn: HTTP **429** và JSON `status: "error"` như trên.
 - Tỉ lệ 40% cho bên chưa có key có thể bị siết thêm trước 01/10/2026 — xem
   [docs/api-key.md](docs/api-key.md). Đừng thiết kế hệ thống dựa vào con số này.
-- Trần chung của cả hệ thống về phía Shopee là **~533 call/phút** cho tất cả người dùng cộng
-  lại. Cần quét số lượng lớn thì dùng [endpoint batch](docs/product-data-batch.md), đừng
-  vòng lặp qua endpoint đơn.
+- Hạn mức phía nguồn là **tài nguyên dùng chung** cho tất cả người gọi, và thấp hơn nhiều so
+  với hạn mức đọc cache. Cần quét số lượng lớn thì dùng
+  [endpoint batch](docs/product-data-batch.md), đừng vòng lặp qua endpoint đơn.
 
 ---
 

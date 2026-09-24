@@ -63,7 +63,7 @@ vận hành nội bộ phi thương mại.
 | [Price & Commission History](docs/price-history-api.md) | `price-tracking/history.php` | **Không** |
 | [Shop Live](docs/shop-live-api.md) | `live/shop-live.php` | **Không** |
 | [TikTok Shop Product](docs/tiktok-product-api.md) | `tiktok/product.php` | TikTok, cache 24 giờ |
-| [TikTok ← Shopee (đối chiếu chéo sàn)](docs/tiktok-find-by-shopee.md) | `tiktok/find-by-shopee.php` | Shopee + RioHub |
+| [TikTok ← Shopee (đối chiếu chéo sàn)](docs/tiktok-find-by-shopee.md) | `tiktok/find-by-shopee.php` | Shopee + nguồn TikTok |
 | [Lazada](docs/lazada-api.md) | `lazada/product.php`, `lazada/resolve.php` | Lazada, cache 24 giờ |
 | [ShopeeFood — Orders](docs/shopeefood-orders-api.md) · [field](docs/shopeefood-orders-fields.md) | `shopeefood/orders.php` | Proxy, dùng cookie của bạn |
 | [ShopeeFood — Store](docs/shopeefood-store-api.md) | `shopeefood/store.php` | **Không** |

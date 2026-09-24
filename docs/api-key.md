@@ -8,14 +8,13 @@
 
 ## Vì sao có bước này
 
-Trần của cả hệ thống là **~533 call/phút** (4 tài khoản Shopee × 8.000 call/giờ). Đo trong
-một giờ ngày 23/09/2026: **40.561 request**, trong đó **98,4%** đến từ tool gọi thẳng server
-(không có `Origin`/`Referer`), và **một IP đơn lẻ đạt 412 call/phút** — tức gần như nuốt trọn
-trần của mọi người còn lại. Hệ quả: cả 4 account chạy 118% trần, dội về 445 lỗi `10030`
-trong 70 phút.
+Hạn mức gọi tới nguồn là **tài nguyên dùng chung và có trần cứng**. Phần lớn lưu lượng hiện
+nay đến từ tool tự động gọi thẳng server, và chỉ vài tool gọi dồn dập là đủ chiếm gần hết
+phần chung — những người còn lại bị chậm hoặc nhận lỗi từ nguồn.
 
-Không định danh được bên gọi thì không siết đúng người. API Key là cách rẻ nhất để phần
-hạn mức khan hiếm được chia cho người dùng thật thay vì một script chạy loạn.
+Không định danh được bên gọi thì không siết đúng người: chặn theo IP thì oan cho người dùng
+chung mạng, mà thả thì ai gọi khoẻ nhất người đó thắng. API Key là cách rẻ nhất để phần hạn
+mức khan hiếm được chia cho người dùng thật thay vì một script chạy loạn.
 
 ---
 
