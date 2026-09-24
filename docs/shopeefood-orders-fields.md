@@ -229,9 +229,9 @@ Tách bằng `explode('-', $utm)` lấy 5 phần là **đúng** với dạng nà
 ### Dạng B — link chia sẻ từ trong app Shopee
 
 ```
-"37712193991759004-AppS-android-11010"
-"d70ac374476db3dee64a8deb7f0497b7-AppS-ios-1480"
-"6938992619562034-AccS-webapp"
+"12345678901234567-AppS-android-11010"
+"0123456789abcdef0123456789abcdef-AppS-ios-1480"
+"9876543210987654-AccS-webapp"
 ```
 
 Cấu trúc: `<id chia sẻ>-<AppS|AccS>-<nền tảng>-<phiên bản build>`. Đoạn đầu là mã chia sẻ do

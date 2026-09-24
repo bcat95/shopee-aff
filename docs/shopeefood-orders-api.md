@@ -117,7 +117,7 @@ Dạng A — link do bạn tự gắn tag (Shopee nối sub_id1..5 bằng dấu 
   "----"        → cả 5 phần rỗng
 
 Dạng B — link chia sẻ từ trong app Shopee
-  "37712193991759004-AppS-android-11010"
+  "12345678901234567-AppS-android-11010"
    └── mã chia sẻ ──┘ └B┘ └ nền tảng ┘ └build┘
 ```
 
