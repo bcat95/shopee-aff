@@ -6,8 +6,27 @@
 
 ---
 
+> ## ⚠️ API Key bắt buộc từ 01/10/2026
+>
+> Áp dụng cho **các endpoint `data.addlivetag.com`** (Product Data, Offers, Market Search,
+> Price History, Shop Live…). Request không có key hợp lệ sẽ bị từ chối (HTTP 401); từ giờ
+> tới mốc đó, request chưa có key chỉ còn **40% hạn mức**.
+>
+> ```bash
+> curl -H "X-API-Key: <key>" \
+>   "https://data.addlivetag.com/product-data/product-data.php?item_id=1589295236"
+> ```
+>
+> Lấy key: **addlivetag.com → API Key → Tạo Key**. Hướng dẫn đầy đủ: **[docs/api-key.md](docs/api-key.md)**
+>
+> *Không liên quan tới Open API chính thống của Shopee (xác thực bằng `app_id` +
+> `secret_key`) — phần đó không đổi gì.*
+
+---
+
 ## 📚 Mục lục
 
+- [🗂 Bản đồ tài liệu](#-bản-đồ-tài-liệu)
 - [🧩 Phạm vi tài liệu trong repo này](#-phạm-vi-tài-liệu-trong-repo-này)
 - [🚀 Demo & công cụ liên quan](#-demo--công-cụ-liên-quan)
 - [🔑 Bắt đầu - Yêu cầu cần có](#-bắt-đầu---yêu-cầu-cần-có)
@@ -20,14 +39,47 @@
 - [🔄 Cập nhật phiên bản (Version Updates)](#-cập-nhật-phiên-bản-version-updates)
 - [📝 Ghi chú & Lưu ý quan trọng](#-ghi-chú--lưu-ý-quan-trọng)
 
+## 🗂 Bản đồ tài liệu
+
+Repo gồm **hai hệ API tách biệt**:
+
+### 1. Shopee Affiliate Open API — chính thống
+
+Xác thực bằng `app_id` + `secret_key`. Tài liệu nằm ngay trong `README.md` này (phần bên
+dưới). Code mẫu: [`Code/php/`](Code/php/), [`Code/nodejs/`](Code/nodejs/).
+
+### 2. Data API — `data.addlivetag.com`
+
+Nguồn **không chính thống**, xác thực bằng API Key. Dùng cho học tập, nghiên cứu kỹ thuật,
+vận hành nội bộ phi thương mại.
+
+| Tài liệu | Endpoint | Gọi Shopee? |
+| --- | --- | --- |
+| **[API Key](docs/api-key.md)** — bắt buộc từ 01/10/2026 | *(áp dụng cho tất cả)* | — |
+| [Product Data](product-data-api.md) | `product-data/product-data.php` | Có, cache 3 giờ |
+| [Product Data — Batch](docs/product-data-batch.md) | `product-data/product-data-batch.php` | Có, tới 100 sp/request |
+| [Offers](docs/offers-api.md) | `offers/*.php` (7 endpoint) | Có, cache 10–30 phút |
+| [Market Search](docs/market-search-api.md) | `search/market.php` | **Không** — chạy trên dữ liệu đã crawl |
+| [Price & Commission History](docs/price-history-api.md) | `price-tracking/history.php` | **Không** |
+| [Shop Live](docs/shop-live-api.md) | `live/shop-live.php` | **Không** |
+| [TikTok Shop Product](docs/tiktok-product-api.md) | `tiktok/product.php` | TikTok, cache 24 giờ |
+| [TikTok ← Shopee (đối chiếu chéo sàn)](docs/tiktok-find-by-shopee.md) | `tiktok/find-by-shopee.php` | Shopee + RioHub |
+| [Lazada](docs/lazada-api.md) | `lazada/product.php`, `lazada/resolve.php` | Lazada, cache 24 giờ |
+| [ShopeeFood — Orders](docs/shopeefood-orders-api.md) · [field](docs/shopeefood-orders-fields.md) | `shopeefood/orders.php` | Proxy, dùng cookie của bạn |
+| [ShopeeFood — Store](docs/shopeefood-store-api.md) | `shopeefood/store.php` | **Không** |
+
+Code mẫu có sẵn API Key: [`Code/data-api/`](Code/data-api/) ·
+Postman: [`Postman/`](Postman/)
+
+**Chọn endpoint nào?** Cần giá + hoa hồng của sản phẩm cụ thể → Product Data (nhiều sản phẩm
+thì Batch). Cần tìm/phân tích theo từ khoá → Market Search. Cần biết shop nào đang có hoa
+hồng cao → Offers. Cần biến động theo thời gian → Price History hoặc `shop-changes.php`.
+
+---
+
 ## 🧩 Phạm vi tài liệu trong repo này
 
 `README.md` này **chỉ** tổng hợp các API chính thống của Shopee Affiliate (Open API / GraphQL) từ tài liệu chính thức.
-
-### Phân tách tài liệu
-
-- API chính thống Shopee: trong `README.md` này.
-- API không chính thống (Product Data API): xem `product-data-api.md`.
 
 ### Nhóm API chính thống được đề cập
 

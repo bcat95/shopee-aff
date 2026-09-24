@@ -1,85 +1,253 @@
 {
     "info": {
         "_postman_id": "7bfbcc20-7676-4658-a4ea-cf70e6a4d11d",
-        "name": "Shopee Product Data API",
-        "description": "Collection test endpoint product-data.php with item_id or url.",
+        "name": "Addlivetag Data API",
+        "description": "Các endpoint của data.addlivetag.com: product-data (đơn & batch), offers, market search, price history, shop live.\n\nAPI Key bắt buộc từ 01/10/2026 — điền biến `api_key`, collection tự gắn header `X-API-Key` cho mọi request.\n\nTài liệu: https://github.com/bcat95/shopee-aff",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "apikey",
+        "apikey": [
+            { "key": "key", "value": "X-API-Key", "type": "string" },
+            { "key": "value", "value": "{{api_key}}", "type": "string" },
+            { "key": "in", "value": "header", "type": "string" }
+        ]
     },
     "item": [
         {
-            "name": "GET - By item_id",
-            "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                    "raw": "{{base_url}}?item_id={{item_id}}",
-                    "host": ["{{base_url}}"],
-                    "query": [
-                        {
-                            "key": "item_id",
-                            "value": "{{item_id}}"
-                        }
-                    ]
+            "name": "Product Data",
+            "item": [
+                {
+                    "name": "GET - By item_id",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/product-data/product-data.php?item_id={{item_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["product-data", "product-data.php"],
+                            "query": [{ "key": "item_id", "value": "{{item_id}}" }]
+                        },
+                        "description": "Thông tin sản phẩm + hoa hồng theo item_id."
+                    },
+                    "response": []
                 },
-                "description": "Get product data by item_id."
-            },
-            "response": []
+                {
+                    "name": "GET - By URL",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/product-data/product-data.php?url={{product_url}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["product-data", "product-data.php"],
+                            "query": [{ "key": "url", "value": "{{product_url}}" }]
+                        },
+                        "description": "Nhận link sản phẩm đầy đủ. Link rút gọn bị hạn chế — nên tự bung trước."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET - Theo tier account (base_rate + cap)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/product-data/product-data.php?item_id={{item_id}}&base_rate=8&cap=20000",
+                            "host": ["{{base_url}}"],
+                            "path": ["product-data", "product-data.php"],
+                            "query": [
+                                { "key": "item_id", "value": "{{item_id}}" },
+                                { "key": "base_rate", "value": "8", "description": "% HH Sàn của account bên gọi" },
+                                { "key": "cap", "value": "20000", "description": "Cap HH Sàn theo VNĐ của account bên gọi" }
+                            ]
+                        },
+                        "description": "Tính hoa hồng theo tier của chính account bạn thay vì account proxy phía server."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST - x-www-form-urlencoded (item_id)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "urlencoded",
+                            "urlencoded": [{ "key": "item_id", "value": "{{item_id}}", "type": "text" }]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/product-data/product-data.php",
+                            "host": ["{{base_url}}"],
+                            "path": ["product-data", "product-data.php"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST - Batch (nhiều item_id)",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"item_ids\": [1589295236, 41013426581]\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/product-data/product-data-batch.php",
+                            "host": ["{{base_url}}"],
+                            "path": ["product-data", "product-data-batch.php"]
+                        },
+                        "description": "Tối đa 100 item_id/request. Ưu tiên cache, chỉ sản phẩm chưa có mới tính vào quota API."
+                    },
+                    "response": []
+                }
+            ]
         },
         {
-            "name": "GET - By URL",
-            "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                    "raw": "{{base_url}}?url={{product_url}}",
-                    "host": ["{{base_url}}"],
-                    "query": [
-                        {
-                            "key": "url",
-                            "value": "{{product_url}}"
+            "name": "Offers",
+            "item": [
+                {
+                    "name": "GET - Sản phẩm có hoa hồng",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/offers/product-offer.php?keyword={{keyword}}&page=1&limit=10",
+                            "host": ["{{base_url}}"],
+                            "path": ["offers", "product-offer.php"],
+                            "query": [
+                                { "key": "keyword", "value": "{{keyword}}" },
+                                { "key": "page", "value": "1" },
+                                { "key": "limit", "value": "10", "description": "tối đa 50" }
+                            ]
                         }
-                    ]
+                    },
+                    "response": []
                 },
-                "description": "Get product data by full Shopee product URL."
-            },
-            "response": []
+                {
+                    "name": "GET - Tra hoa hồng shop theo shopId",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/offers/shop-check.php?shopId={{shop_id}}&history=30",
+                            "host": ["{{base_url}}"],
+                            "path": ["offers", "shop-check.php"],
+                            "query": [
+                                { "key": "shopId", "value": "{{shop_id}}" },
+                                { "key": "history", "value": "30", "description": "số ngày lấy tóm tắt biến động" }
+                            ]
+                        },
+                        "description": "Chú ý pending[]: id chưa kiểm được, KHÔNG phải shop không có hoa hồng."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET - Shop đổi hoa hồng 7 ngày",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/offers/shop-changes.php?days=7&direction=down&minDelta=1&limit=50",
+                            "host": ["{{base_url}}"],
+                            "path": ["offers", "shop-changes.php"],
+                            "query": [
+                                { "key": "days", "value": "7" },
+                                { "key": "direction", "value": "down", "description": "up | down | any" },
+                                { "key": "minDelta", "value": "1", "description": "điểm phần trăm" },
+                                { "key": "limit", "value": "50" }
+                            ]
+                        },
+                        "description": "Thuần đọc DB, không tiêu quota Shopee."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET - Hồ sơ shop (follower, tuổi shop)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/offers/shop-info.php?shopId={{shop_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["offers", "shop-info.php"],
+                            "query": [{ "key": "shopId", "value": "{{shop_id}}" }]
+                        },
+                        "description": "Tối đa 20 shop/lượt qua tham số shopIds. Luôn kiểm tra found trước khi đọc."
+                    },
+                    "response": []
+                }
+            ]
         },
         {
-            "name": "POST - x-www-form-urlencoded (item_id)",
-            "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                    "mode": "urlencoded",
-                    "urlencoded": [
-                        {
-                            "key": "item_id",
-                            "value": "{{item_id}}",
-                            "type": "text"
-                        }
-                    ]
+            "name": "Phân tích",
+            "item": [
+                {
+                    "name": "GET - Toàn cảnh thị trường theo từ khoá",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/search/market.php?q={{keyword}}&limit=20&sort=revenue_all",
+                            "host": ["{{base_url}}"],
+                            "path": ["search", "market.php"],
+                            "query": [
+                                { "key": "q", "value": "{{keyword}}" },
+                                { "key": "limit", "value": "20", "description": "tối đa 200" },
+                                { "key": "sort", "value": "revenue_all" }
+                            ]
+                        },
+                        "description": "Không tiêu quota Shopee. Lưu ý market = luỹ kế, last30Days = theo kỳ, đừng cộng hai khối."
+                    },
+                    "response": []
                 },
-                "url": {
-                    "raw": "{{base_url}}",
-                    "host": ["{{base_url}}"]
+                {
+                    "name": "GET - Lịch sử giá & hoa hồng",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/price-tracking/history.php?item_id={{item_id}}&days=90",
+                            "host": ["{{base_url}}"],
+                            "path": ["price-tracking", "history.php"],
+                            "query": [
+                                { "key": "item_id", "value": "{{item_id}}" },
+                                { "key": "days", "value": "90", "description": "tối đa 730" }
+                            ]
+                        },
+                        "description": "Độ phân giải theo NGÀY. Thuần đọc DB."
+                    },
+                    "response": []
                 },
-                "description": "Post item_id as x-www-form-urlencoded."
-            },
-            "response": []
+                {
+                    "name": "GET - Phiên livestream của shop",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/live/shop-live.php?shop_ids={{shop_id}}&stats=1&recent_days=30",
+                            "host": ["{{base_url}}"],
+                            "path": ["live", "shop-live.php"],
+                            "query": [
+                                { "key": "shop_ids", "value": "{{shop_id}}" },
+                                { "key": "stats", "value": "1" },
+                                { "key": "recent_days", "value": "30" }
+                            ]
+                        },
+                        "description": "Shop không có trong kho thì không xuất hiện trong map trả về."
+                    },
+                    "response": []
+                }
+            ]
         }
     ],
     "variable": [
-        {
-            "key": "base_url",
-            "value": "https://data.addlivetag.com/product-data/product-data.php"
-        },
-        {
-            "key": "item_id",
-            "value": "1589295236"
-        },
-        {
-            "key": "product_url",
-            "value": "https://shopee.vn/product/38003654/1589295236"
-        }
+        { "key": "base_url", "value": "https://data.addlivetag.com" },
+        { "key": "api_key", "value": "", "type": "string" },
+        { "key": "item_id", "value": "1589295236" },
+        { "key": "product_url", "value": "https://shopee.vn/product/38003654/1589295236" },
+        { "key": "shop_id", "value": "38003654" },
+        { "key": "keyword", "value": "ao len" }
     ]
 }
